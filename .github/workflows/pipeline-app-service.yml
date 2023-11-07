@@ -1,0 +1,38 @@
+name: Pipeline App Service
+
+on:
+  push:
+    branches:
+      - "*/*"
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  Dependecies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: "npm"
+      - run: npm ci
+
+  Build:
+    needs: Dependecies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: "npm"
+      - run: npm run build
+
+  Test:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: "npm"
+      - run: npm run test
