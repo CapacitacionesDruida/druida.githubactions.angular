@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 18.10
           cache: "npm"
+      - run: npm ci
       - run: npm run build
 
   Test:
@@ -38,4 +39,5 @@ jobs:
         with:
           node-version: 18.10
           cache: "npm"
+      - run: npm ci
       - run: npm run test
