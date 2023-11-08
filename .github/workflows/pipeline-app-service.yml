@@ -13,11 +13,12 @@ env:
   NODE_VERSION: "18.10.0"
 
 jobs:
-  Redundant:
-    name: Cancel Previous Redundant Jobs
-    uses: styfle/cancel-workflow-action
-    with:
-      access_token: ${{ github.token }}
+  AvoidRedundant:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action
+        with:
+          access_token: ${{ github.token }}
 
   Dependecies:
     runs-on: ubuntu-latest
