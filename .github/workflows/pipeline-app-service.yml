@@ -6,7 +6,6 @@ on:
       - "**"
   pull_request:
     branches: ["master", "development"]
-    types: [closed]
 
 env:
   RELEASE_PATH: "./dist/druida.githubactions.angular/*"
@@ -60,7 +59,7 @@ jobs:
 
   Deploy:
     name: Deploy to development
-    if: ${{ github.ref == 'development' }}
+    if: github.ref == 'refs/heads/development'
     needs: [Build, Test]
     runs-on: ubuntu-latest
     steps:
