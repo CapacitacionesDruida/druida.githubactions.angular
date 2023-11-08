@@ -88,8 +88,8 @@ jobs:
           package: ./dist/druida.githubactions.angular
 
   DeployQA:
-    name: Deploy to development
-    if: contains('refs/heads/certification/*', github.ref)
+    name: Deploy to QA
+    if: contains( github.ref, 'certification' )
     environment: QA
     needs: [Build, Test]
     runs-on: ubuntu-latest
