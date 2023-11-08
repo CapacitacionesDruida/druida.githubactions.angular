@@ -3,15 +3,23 @@ name: Pipeline App Service
 on:
   push:
     branches:
-      - "*/*"
+      - "**"
   pull_request:
-    branches: ["master"]
+    branches: ["master", "development"]
+    types: [closed]
 
 env:
   RELEASE_PATH: "./dist/druida.githubactions.angular/*"
   NODE_VERSION: "18.10.0"
 
 jobs:
+  AvoidRedundant:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.0
+        with:
+          access_token: ${{ github.token }}
+
   Dependecies:
     runs-on: ubuntu-latest
     steps:
