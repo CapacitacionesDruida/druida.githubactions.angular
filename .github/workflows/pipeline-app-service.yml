@@ -51,6 +51,8 @@ jobs:
       - run: npm run test
 
   Deploy:
+    name: Deploy to development
+    if: ${{ github.ref == 'development' }}
     needs: [Build, Test]
     runs-on: ubuntu-latest
     steps:
