@@ -43,7 +43,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: dist
+          path: dist/druida.githubactions.angular
 
   Test:
     needs: Build
@@ -77,4 +77,4 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.RELEASE_PATH }}
+          package: .
