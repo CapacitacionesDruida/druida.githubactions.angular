@@ -6,6 +6,7 @@ on:
       - "**"
   pull_request:
     branches: ["master", "development"]
+  create:
 
 env:
   RELEASE_PATH: "./dist/druida.githubactions.angular/"
@@ -57,9 +58,39 @@ jobs:
       - run: npm ci
       - run: npm run test
 
-  Deploy:
+  DeployDev:
     name: Deploy to development
+    if: github.ref == 'refs/heads/development'
     environment: Dev
+    needs: [Build, Test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist/druida.githubactions.angular
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          files: '["**/*.js"]'
+        env:
+          apiUrl: ${{ secrets.API_URL }}
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: "Deploy to Azure Web App"
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./dist/druida.githubactions.angular
+
+  DeployQA:
+    name: Deploy to development
+    if: contains('refs/heads/certification/*', github.ref)
+    environment: QA
     needs: [Build, Test]
     runs-on: ubuntu-latest
     steps:
