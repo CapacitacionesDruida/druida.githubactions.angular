@@ -59,6 +59,7 @@ jobs:
 
   Deploy:
     name: Deploy to development
+    environment: Dev
     needs: [Build, Test]
     runs-on: ubuntu-latest
     steps:
