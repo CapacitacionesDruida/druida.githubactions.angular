@@ -68,6 +68,11 @@ jobs:
         with:
           name: dist
           path: dist/druida.githubactions.angular
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          files: '["**/*.js"]'
+        env:
+          apiUrl: ${{ secrets.API_URL }}
       - name: Az CLI login
         uses: azure/login@v1
         with:
