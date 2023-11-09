@@ -5,10 +5,9 @@ module.exports = function (config) {
       frameworks: ['jasmine', '@angular-devkit/build-angular'],
       plugins: [
         require('karma-jasmine'),
-        require('karma-webpack'),
         require('karma-coverage'),
-        require('karma-remap-istanbul'),
         require('karma-chrome-launcher'),
+        require('@angular-devkit/build-angular/plugins/karma'),
       ],
       client: {
         clearContext: false,
@@ -16,7 +15,13 @@ module.exports = function (config) {
           random: false
         }
       },
-      reporters: ['progress', 'kjhtml', 'junit', 'spec'],
+      files: [
+        { pattern: './src/assets/**', watched:true, included:true, nocache:false, served:true }
+      ],
+      proxies: {
+        '/assets/': '/base/src/assets/'
+      },
+      reporters: ['progress'],
       port: 9876,
       colors: true,
       logLevel: config.LOG_INFO,

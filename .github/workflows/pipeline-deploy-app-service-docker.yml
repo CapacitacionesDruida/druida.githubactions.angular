@@ -1,0 +1,38 @@
+name: Pipeline App Service and Docker
+
+on:
+  workflow_call:
+    inputs:
+      environmentName:
+        required: true
+        type: string
+
+env:
+  IMAGE_NAME: druida-githubactions-angular
+  IMAGE_VERSION: 1.0.3
+
+jobs:
+  Deploy:
+    name: Deploy to ${{ inputs.environmentName }}
+    environment: ${{ inputs.environmentName }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Az CLI login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: ACR authentication
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+      - name: Docker Build
+        run: docker build . -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }} -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest --build-arg='apiUrl=${{ secrets.API_URL }}'
+      - name: Docker Push to ACR
+        run: docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: ap-demo-gha-docker-dev-001
+          images: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
