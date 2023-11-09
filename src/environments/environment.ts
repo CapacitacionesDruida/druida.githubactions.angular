@@ -1,4 +1,4 @@
 export const environment = {
-    production: false,
-    apiUrl: '#{apiUrl}#'
+    production: true,
+    apiUrl: window[<any>'env'][<any>'apiUrl']
 };

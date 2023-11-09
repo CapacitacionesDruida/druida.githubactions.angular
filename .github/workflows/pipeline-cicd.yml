@@ -1,0 +1,54 @@
+name: Pipeline CI/CD
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches: ["master", "development"]
+  create:
+
+jobs:
+  AvoidRedundant:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.0
+        with:
+          access_token: ${{ github.token }}
+
+  # Tarea genérica de CI con compilación, pruebas, sonar, entre otros
+  CI:
+    uses: ./.github/workflows/pipeline-build.yml
+
+  # Despligue a una App Service de forma tradicional
+  CD-Development:
+    if: github.ref == 'refs/heads/development'
+    uses: ./.github/workflows/pipeline-deploy-app-service.yml
+    secrets: inherit
+    needs: [CI]
+    with:
+      environmentName: Dev
+
+  CD-QA:
+    if: contains( github.ref, 'certification' )
+    uses: ./.github/workflows/pipeline-deploy-app-service.yml
+    secrets: inherit
+    needs: [CI]
+    with:
+      environmentName: QA
+
+  CD-Production:
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/pipeline-deploy-app-service.yml
+    secrets: inherit
+    needs: [CI]
+    with:
+      environmentName: Prod
+
+  # Despligue a una App Service a través de una imagen de Docker y Azure Container Registry
+#   CD-Docker:
+#     uses: ./.github/workflows/pipeline-deploy-app-service-docker.yml
+#     secrets: inherit
+#     needs: [Build]
+#     with:
+#       environmentName: Dev
