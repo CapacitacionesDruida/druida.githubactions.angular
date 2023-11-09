@@ -29,12 +29,10 @@ jobs:
           login-server: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
           username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
-      - name: Docker Build & Push to ACR
-        run: |
-          docker build . -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }} |
-          -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest |
-          --build-arg='apiUrl=${{ secrets.API_URL }}'
-          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
+      - name: Docker Build
+        run: docker build . -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }} -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest --build-arg='apiUrl=${{ secrets.API_URL }}'
+      - name: Docker Push to ACR
+        run: docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
       - uses: azure/webapps-deploy@v2
         with:
           app-name: ap-demo-gha-docker-dev-001
