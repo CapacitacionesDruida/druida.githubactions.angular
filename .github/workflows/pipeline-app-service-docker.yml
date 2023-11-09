@@ -10,7 +10,7 @@ on:
 
 env:
   IMAGE_NAME: druida-githubactions-angular
-  IMAGE_VERSION: 1.0.0
+  IMAGE_VERSION: 1.0.1
 
 jobs:
   DeployDev:
@@ -32,4 +32,9 @@ jobs:
       - name: Docker Build & Push to ACR
         run: |
           docker build . -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }} -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
+          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }} --env apiUrl=${{ secrets.API_URL }}
+      - name: "Deploy to Azure Web App for Container"
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ap-demo-gha-docker-dev-001
+          images: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
