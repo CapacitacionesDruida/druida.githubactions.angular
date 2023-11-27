@@ -8,6 +8,9 @@ on:
     branches: ["master", "development"]
   create:
 
+env:
+  SONAR_PROJECT_KEY_NAME: swo-angular-ci_cd-template
+
 jobs:
   AvoidRedundant:
     runs-on: ubuntu-latest
@@ -16,39 +19,54 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  # Tarea genérica de CI con compilación, pruebas, sonar, entre otros
+  # Generic CI task with compilation, testing, sonar, among others
+  SET-ENV-MASTER:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "SONAR_PROJECT_KEY_NAME=${SONAR_PROJECT_KEY_NAME}-master" >> $GITHUB_ENV
+  SET-ENV-OTHERS:
+    if: github.ref != 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "SONAR_PROJECT_KEY_NAME=${SONAR_PROJECT_KEY_NAME}-dev" >> $GITHUB_ENV
+      - run: echo "${SONAR_PROJECT_KEY_NAME}
+
   CI:
+    if: github.ref == 'refs/heads/master'
     uses: ./.github/workflows/pipeline-build.yml
+    with:
+      sonarProjectKeyName: ${{ env.SONAR_PROJECT_KEY_NAME }}
 
   # Despligue a una App Service de forma tradicional
-  #   CD-Development:
-  #     if: github.ref == 'refs/heads/development'
-  #     uses: ./.github/workflows/pipeline-deploy-app-service.yml
-  #     secrets: inherit
-  #     needs: [CI]
-  #     with:
-  #       environmentName: Dev
-
-  #   CD-QA:
-  #     if: contains( github.ref, 'certification' )
-  #     uses: ./.github/workflows/pipeline-deploy-app-service.yml
-  #     secrets: inherit
-  #     needs: [CI]
-  #     with:
-  #       environmentName: QA
-
-  #   CD-Production:
-  #     if: github.ref == 'refs/heads/master'
-  #     uses: ./.github/workflows/pipeline-deploy-app-service.yml
-  #     secrets: inherit
-  #     needs: [CI]
-  #     with:
-  #       environmentName: Prod
-
-  # Despligue a una App Service a través de una imagen de Docker y Azure Container Registry
-  CD-Docker:
-    uses: ./.github/workflows/pipeline-deploy-app-service-docker.yml
+  CD-Development:
+    if: github.ref == 'refs/heads/development'
+    uses: ./.github/workflows/pipeline-deploy-app-service.yml
     secrets: inherit
     needs: [CI]
     with:
       environmentName: Dev
+
+  CD-QA:
+    if: contains( github.ref, 'certification' )
+    uses: ./.github/workflows/pipeline-deploy-app-service.yml
+    secrets: inherit
+    needs: [CI]
+    with:
+      environmentName: QA
+
+  CD-Production:
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/pipeline-deploy-app-service.yml
+    secrets: inherit
+    needs: [CI]
+    with:
+      environmentName: Prod
+
+  # Despligue a una App Service a través de una imagen de Docker y Azure Container Registry
+  # CD-Docker:
+  #   uses: ./.github/workflows/pipeline-deploy-app-service-docker.yml
+  #   secrets: inherit
+  #   needs: [CI]
+  #   with:
+  #     environmentName: Dev
