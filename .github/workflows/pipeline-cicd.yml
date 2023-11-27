@@ -30,12 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "SONAR_PROJECT_KEY_NAME=${SONAR_PROJECT_KEY_NAME}-dev" >> $GITHUB_ENV
-      - run: echo "${SONAR_PROJECT_KEY_NAME}
 
   PREPARE-ENV:
     runs-on: ubuntu-latest
     outputs:
       SONAR_PROJECT_KEY_NAME: ${{ env.SONAR_PROJECT_KEY_NAME }}
+    steps:
+      - run: echo "${SONAR_PROJECT_KEY_NAME}
 
   CI:
     needs: [PREPARE-ENV]
