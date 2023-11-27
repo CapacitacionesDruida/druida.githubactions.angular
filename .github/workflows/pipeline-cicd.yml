@@ -21,7 +21,6 @@ jobs:
 
   # Generic CI task with compilation, testing, sonar, among others
   SET-ENV:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - run: |
