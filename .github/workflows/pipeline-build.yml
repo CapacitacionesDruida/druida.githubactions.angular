@@ -13,6 +13,11 @@ env:
   WORKING_DIRECTORY: "./src/"
 
 jobs:
+  Validation:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "sonarProjectKeyName => ${{ inputs.sonarProjectKeyName }}"
+
   Dependencies:
     runs-on: ubuntu-latest
     steps:

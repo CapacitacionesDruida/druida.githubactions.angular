@@ -23,7 +23,6 @@ jobs:
   SET-ENV:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "$GITHUB_CONTEXT.ref"
       - run: |
           if [$GITHUB_CONTEXT.ref == 'refs/heads/master'] 
           then
@@ -32,6 +31,8 @@ jobs:
             echo "SONAR_PROJECT_KEY_NAME=${SONAR_PROJECT_KEY_NAME}-dev" >> $GITHUB_ENV
           fi
       - run: echo "${SONAR_PROJECT_KEY_NAME}"
+    outputs:
+      SONAR_PROJECT_KEY_NAME: ${{ env.SONAR_PROJECT_KEY_NAME }}
 
   # SET-ENV-MASTER:
   #   if: github.ref == 'refs/heads/master'
@@ -44,19 +45,19 @@ jobs:
   #   steps:
   #     - run: echo "SONAR_PROJECT_KEY_NAME=${SONAR_PROJECT_KEY_NAME}-dev" >> $GITHUB_ENV
 
-  PREPARE-ENV:
-    needs: [SET-ENV]
-    runs-on: ubuntu-latest
-    outputs:
-      SONAR_PROJECT_KEY_NAME: ${{ env.SONAR_PROJECT_KEY_NAME }}
-    steps:
-      - run: echo "${SONAR_PROJECT_KEY_NAME}"
+  # PREPARE-ENV:
+  #   needs: [SET-ENV]
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     SONAR_PROJECT_KEY_NAME: ${{ env.SONAR_PROJECT_KEY_NAME }}
+  #   steps:
+  #     - run: echo "${SONAR_PROJECT_KEY_NAME}"
 
   CI:
-    needs: [PREPARE-ENV]
+    needs: [SET-ENV]
     uses: ./.github/workflows/pipeline-build.yml
     with:
-      sonarProjectKeyName: ${{ needs.PREPARE-ENV.outputs.SONAR_PROJECT_KEY_NAME }}
+      sonarProjectKeyName: ${{ needs.SET-ENV.outputs.SONAR_PROJECT_KEY_NAME }}
 
   # Despligue a una App Service de forma tradicional
   CD-Development:
