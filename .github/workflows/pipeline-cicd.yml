@@ -32,11 +32,16 @@ jobs:
       - run: echo "SONAR_PROJECT_KEY_NAME=${SONAR_PROJECT_KEY_NAME}-dev" >> $GITHUB_ENV
       - run: echo "${SONAR_PROJECT_KEY_NAME}
 
+  PREPARE-ENV:
+    runs-on: ubuntu-latest
+    outputs:
+      SONAR_PROJECT_KEY_NAME: ${{ env.SONAR_PROJECT_KEY_NAME }}
+
   CI:
-    if: github.ref == 'refs/heads/master'
+    needs: [PREPARE-ENV]
     uses: ./.github/workflows/pipeline-build.yml
     with:
-      sonarProjectKeyName: ${{ env.SONAR_PROJECT_KEY_NAME }}
+      sonarProjectKeyName: ${{ needs.PREPARE-ENV.outputs.SONAR_PROJECT_KEY_NAME }}
 
   # Despligue a una App Service de forma tradicional
   CD-Development:
