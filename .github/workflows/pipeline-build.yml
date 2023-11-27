@@ -2,10 +2,15 @@ name: Pipeline Build
 
 on:
   workflow_call:
+    inputs:
+      sonarProjectKeyName:
+        required: true
+        type: string
 
 env:
   RELEASE_PATH: "./dist/druida.githubactions.angular/"
   NODE_VERSION: "18.10.0"
+  WORKING_DIRECTORY: "./src/"
 
 jobs:
   Dependencies:
@@ -45,3 +50,31 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run test
+      - uses: actions/upload-artifact@v3
+        with:
+          name: testresults
+          path: testresults/druida.githubactions.angular
+
+  Sonar:
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: sonarsource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: ${{ env.WORKING_DIRECTORY }}
+          args: -Dsonar.organization=my-organization
+            -Dsonar.host.url=${{ secrets.SONAR_URL }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.projectKey=${{ inputs.sonarProjectKeyName }}
+            -Dsonar.projectName=${{ inputs.sonarProjectKeyName }}
+            -Dsonar.sources=src
+            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/TESTS-Chrome_Headless_83.0.4103.116_(Windows_10).xml,**/src/test.ts
+            -Dsonar.typescript.lcov.reportPaths=testresults/coverage/lcov.info
+            -Dsonar.test=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.ts.tslintconfigpath=tslint.json
+            -Dsonar.typescript.lcov.reportPaths=testresults/coverage/lcov.info
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
